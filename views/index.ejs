@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+	<title></title>
+</head>
+<body>
+	<table class="table is-striped is-fullwidth">
+		<thead>
+			<tr>
+      		  <th>Stock Name</th>
+      		  <th>Price</th>
+      		  <th>Price Change</th>
+      		  <th>%Change</th>
+    		</tr>
+		</thead>
+		<tbody>
+			<% for (var i=0; i < data.length; i++) { %>
+			<tr>
+				<td><%= data[i][0] %></td>
+				<td><%= data[i][1] %></td>
+				<td><%= data[i][2] %></td>
+				<td><%= data[i][3] %></td>
+			</tr>
+			<% } %>
+		</tbody>
+	</table>
+</body>
+</html>
