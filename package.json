@@ -4,6 +4,7 @@
   "description": "Scrapes Dhaka Stock Exchange",
   "main": "index.js",
   "scripts": {
+  	"start":"node index.js",
      "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
