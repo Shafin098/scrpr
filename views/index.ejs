@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>dsebd</title>
+	<link rel="manifest" href="manifest.json"></link>
+	<!-- <link rel="icon" type="image/x-icon" href="Chart.ico"/>
+	<link rel="shortcut icon" type="image/x-icon" href="Chart.ico"/> -->
+	<style type="text/css">
+		
+		html, body {
+			margin: 0;
+			padding: 0;
+			caret-color: #ff3860;		
+		}
+
+		/* body > :not(#menuOverlay) {
+			filter: blur(0px);
+			transition: .15s filter linear;
+		} */
+		body {
+  			width:100%;
+  			min-height:100%;
+  			top:0; 
+			bottom:0; 
+			right:0; 
+			left:0;
+			background: #f5f5f5;
+		}
+		.box {
+			font-weight: bold;
+		}
+
+		h2.subtitle {
+			text-align: center;
+		}
+	</style>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+</head>
+<body>
+	<div style="position: fixed; height: 100%; width: 100%; flex-direction: column; display: none; 
+	justify-content: center; align-items: center; z-index: 3; background: rgba(0,0,0,.3);" id="menuOverlay">
+		<div class="box" style="z-index: 3; margin: 4px; margin-bottom: 52px">
+		<div style="display: flex; flex-direction: column; width: 15rem">
+			<button class="delete" onclick="overlayToggle()" 
+			style="align-self: flex-end;">Close</button>
+			<div class="field" style="display: flex; flex-direction: column;">
+				<label class="label" style="align-self: center;">Search by symbol</label>
+				<input class="input is-rounded" type="text" placeholder="ex: BEXIMCO" id="tickerSearchInput" 
+				style="align-self: center; margin-bottom: 4px">
+				<a class="button is-danger is-rounded" style="align-self: center; margin-top: 4px" onclick="redirectSearch()" id="tickerSearchButton">search</a>
+			</div>
+			<a href="/login" style="align-self: center; margin-bottom: 4px">Login</a>
+			<a href="/data" style="align-self: center; margin-bottom: 4px">data</a>
+		</div>
+		</div>
+	</div>
+	<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation" style="display: flex; justify-content: space-around; background-color: rgba(255, 255, 255, .9); align-items: center; border-bottom:2px solid #ff3860">
+		<a href="/" style="color: #ff3860;"><b>dsebd</b></a>
+	    <div id='status' style="">
+	    	<b>Market Status: <span style="color: red;"><%=status%></span></b>
+	    </div>
+	    <button class="button is-danger" style="margin: 4px" onclick="overlayToggle()"><b>menu</b></button>
+	</nav>
+	<div id="mainColumn" class="column is-4 is-offset-4" style="margin-top: 52px;">
+			<!-- <h1 id='status' class="title has-text-centered">Market Status: <%=status%></h1> -->
+			<% for (var i=0; i < data.length; i++) { %> 
+			<a href="/ticker/<%=data[i][0]%>" class="box" style="display: none" id="box">
+				<div  class="level is-mobile">
+				<div class="symbol level-item has-text-centered" id="symbol"><%= data[i][0] %></div>
+				<div class="ltp level-item has-text-centered" id="ltp"><%= data[i][1] %></div>
+				<div class="c_price level-item has-text-centered"><%= data[i][2] %></div>
+				<div class="c_percent level-item has-text-centered"><%= data[i][3] %></div>
+				</div>
+			</a>
+			<% } %>
+			<div style="text-align: center">
+				<button onclick="loadMore()" class="button is-danger" id="loadButton" style="">
+				Load More
+				</button>
+			</div>
+	</div>
+		 <script type="text/javascript">
+			let a = document.querySelectorAll('a#box.box');
+			let loadButton = document.getElementById('loadButton');
+			let navMenuButton = document.querySelector('#navMenuButton');
+			let menuOverlay = document.querySelector('#menuOverlay');
+			let mainColumn = document.querySelector('#mainColumn');
+			let navBar = document.querySelector('nav');
+			let blurFilter = document.querySelectorAll("body > :not(#menuOverlay)");
+			let aToLoad = 20;
+
+			for (let i = 0; i < 20; i++) {
+					a[i].style.display = "";
+				}
+			function loadMore() {				
+				for (let i = aToLoad; i < (aToLoad + 20); i++) {
+					a[i].style.display = "";
+					}
+				// console.log(aToLoad);
+				aToLoad += 20;
+				if (aToLoad > 320) {
+				loadButton.parentNode.removeChild(loadButton);
+				}								
+			}
+			function redirectSearch() {
+				let tickerSearchInput = document.querySelector('#tickerSearchInput').value.toUpperCase();;
+				let tickerSearchButton = document.querySelector('#tickerSearchButton')
+				// console.log(tickerSearchInput);
+				 let tickerList = [];
+				 for (let i = 0; i < 60; i++) {
+					  tickerList.push(a[i].innerText.split(/\r?\n/));
+					 }
+				console.log(tickerList)
+				if (tickerSearchInput != '') {
+					tickerSearchButton.href = '/ticker/' + tickerSearchInput;
+				}
+			}
+
+			function overlayToggle() {
+				if (menuOverlay.style.display == 'none') {
+					menuOverlay.style.display = 'flex';
+					for (var i = 0; i < blurFilter.length; i++) {
+						blurFilter[i].style.filter = 'blur(3px)';
+					}
+				} else {
+					menuOverlay.style.display = 'none';
+					for (var i = 0; i < blurFilter.length; i++) {
+						blurFilter[i].style.filter = 'none';
+					}
+				}
+				// console.log(menuOverlay.style.display);
+			}
+
+			let color_change = function() {
+			let c_price = document.getElementsByClassName('c_price');
+			if (c_price[0] == undefined) {
+				let h2 = document.createElement('h2');
+				document.body.appendChild(h2)
+				h2.className = 'subtitle';
+				h2.innerHTML = "Currently data is not available";
+				h2.style.color = 'white';
+			}
+
+			for (var i = 0; i < c_price.length; i++) {
+				if (c_price[i].innerHTML[0] == '-') {
+					c_price[i].style.color = 'red';
+					} else {
+						c_price[i].style.color = 'green';
+						}
+					// console.log(c_price[i].innerHTML);	
+					}
+
+			let c_percent = document.getElementsByClassName('c_percent');
+			for (var i = 0; i < c_percent.length; i++) {
+				if (c_percent[i].innerHTML[0] == '-') {
+					c_percent[i].style.color = 'red';
+					} else {
+						c_percent[i].style.color = 'green';
+						}
+					}
+				}
+
+			let refresh = function() {	
+					let url = 'https://dsebd.herokuapp.com/data'//remember to change when using loacalhost
+					fetch(url || 'http://loacalhost:3000/data')
+						.then(function(response) {
+							return response.json();
+						})
+						.then(function(myJson) {
+						for (var i = 0; i < myJson.length; i++) {
+								// console.log(myJson[i]);
+								let ltp = document.getElementsByClassName('ltp');
+								let c_price = document.getElementsByClassName('c_price');
+								let c_percent = document.getElementsByClassName('c_percent');
+
+								for (var i = 0; i < ltp.length; i++) {
+									ltp[i].innerHTML = myJson[i][1];	
+									}
+								for (var i = 0; i < c_price.length; i++) {
+									c_price[i].innerHTML = myJson[i][2];	
+									}
+								for (var i = 0; i < c_percent.length; i++) {
+									c_percent[i].innerHTML = myJson[i][3];	
+									}
+								}
+
+						});
+					}
+
+			let status = document.querySelector('#status>b>span');
+			// console.log(status);
+
+			window.onload = function() {
+				refresh();
+				if (status.innerText != "Closed") {
+					status.style.color = 'green';
+					color_change();
+					setInterval(color_change, 20000);
+					setInterval(refresh, 20000);
+					console.log(status);
+				}
+			}
+			
+			
+			//This is the "Offline copy of pages" service worker
+
+				//Add this below content to your HTML page, or add the js file to your page at the very top to register service worker
+				if (navigator.serviceWorker.controller) {
+					console.log('[PWA Builder] active service worker found, no need to register')
+				} else {
+					//Register the ServiceWorker
+					navigator.serviceWorker.register('pwabuilder-sw.js', {
+						scope: './'
+					}).then(function (reg) {
+						console.log('Service worker has been registered for scope:' + reg.scope);
+					});
+				}
+
+
+		</script>
+	</body>
+</html>
