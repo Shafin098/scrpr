@@ -6,6 +6,7 @@ const compression = require('compression')
 const cors = require('cors');
 const app = express();
 
+const PORT = 3000;
 let stocks = [];
 let status;
 const url = 'http://www.dsebd.org/dseX_share.php';
@@ -22,6 +23,7 @@ try {
 request(url, function(error, response, body) {
             console.log('error:', error); 
             console.log('statusCode:', response && response.statusCode);
+            
             if (response != undefined ) {
                 const $ = cheerio.load(body);
 
@@ -83,7 +85,8 @@ app.use(function(req, res) {
     res.render('error');
 });
 
-app.listen(process.env.PORT || 3000, function() {
+app.listen(process.env.PORT || PORT, function() {
+    console.log(`Listening at port ${process.env.PORT ||PORT}`);
     console.log('started');
 });
 
